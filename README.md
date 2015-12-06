@@ -2,7 +2,7 @@
 Snarf appointment data from a selection of a user's Google calendars 
 
 ## Hosting
-[View live on IX (for now)](http://ix.cs.uoregon.edu:5280/index)
+[View live on IX (for now)](http://ix.cs.uoregon.edu:5281/index)
 
 ## What is here
 
