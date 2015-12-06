@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en"> <head>
+<title>Meeting Times</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />
+
+<!-- jquery from a content distribution network; probably cached -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+
+<!-- Moment -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<!-- Bootstrap DateRangePicker -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+<!-- Custom -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/common.css') }}" />
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/create.css') }}" />
+
+</head>
+
+<body>
+<div class="container">
+
+<h1>Meeting Times</h1>
+
+<!--
+  -- If there are any warnings or other messages from a prior action,
+  -- they appear above the rest of the content, just until the next 
+  -- action.
+  -->
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="row">
+<div class="col-sm-12">
+
+<form class="form-horizontal" action="{{ url_for('func_create') }}" method="post">
+  <div class="form-group">
+    <label class="col-sm-12 text-center text-large">Meeting Information</label>
+  </div>
+  <div class="form-group">
+    <label for="title" class="col-sm-2 control-label">Meeting Title</label>
+    <div class="col-sm-10">
+      <input type="text" name="title" class="form-control" id="title" placeholder="Title" required />
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="desc" class="col-sm-2 control-label">Meeting Description</label>
+    <div class="col-sm-10">
+      <textarea type="text" name="desc" class="form-control" id="desc" placeholder="Description..." required></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="range" class="col-sm-2 control-label">Date Range</label>
+    <div class="col-sm-10">
+      <input type="text" name="range" class="form-control calender-time" id="range" placeholder="MM/DD/YYYY HH:mm - MM/DD/YYYY HH:mm" required />
+      <input type="hidden" id="range-start" name="start" value=""/>
+      <input type="hidden" id="range-end" name="end" value=""/>
+      <p class="help-block">Start Date with Start Time - to - End Date with End Time</p>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <a class="btn btn-danger" href="{{ url_for('index') }}">Cancel</a>
+      <button type="submit" class="btn btn-success">Create Meeting</button>
+    </div>
+  </div>
+</form>
+
+</div>
+</div>
+
+  </div>  <!-- container (for bootstrap) -->
+  
+  <!-- Custom -->
+  <script src="{{ url_for('static', filename='js/create.js') }}"></script>
+  </body> </html>

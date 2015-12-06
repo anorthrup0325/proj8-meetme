@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en"> <head>
+<title>Meeting Times</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />
+
+<!-- jquery from a content distribution network; probably cached -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+
+<!-- Moment -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<!-- Bootstrap DateRangePicker -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+<!-- Custom -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/common.css') }}" />
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}" />
+
+</head>
+
+<body>
+<div class="container">
+<div class="row">
+<div class="col-sm-12">
+
+<h1>Meeting Times</h1>
+
+<!-- 
+  - If there are any warnings or other messages from a prior action,
+  - they appear above the rest of the content, just until the next 
+  - action.
+  -->
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="row">
+<div class="col-sm-12">
+	<a class="alert btn btn-success hfill" href="{{ url_for('create') }}"><span class="alert-link">Create a Meeting</span></a>
+	
+	<div id="meeting-info">
+		{% for meeting in meetings %}
+			<a class="alert alert-{{ meeting.type | alerttype }} meeting-line {{ 'meeting-own' if 'users' in meeting }} hfill" href="view?id={{ meeting.id }}">
+				<span class="alert-link">
+					{{ meeting.title }}
+					{% if meeting.final %}
+						<u>[Time Chosen]</u>
+					{% endif %}
+				</span>
+				<br />
+				{% if meeting.desc %}
+					<span>{{ meeting.desc }}</span>
+				{% else %}
+					<span class="desc-none">No description.</span>
+				{% endif %}
+			</a>
+		{% else %}
+			<span class="alert alert-danger meeting-line hfill">
+				<span class="alert-link">No meetings found</span>
+			</span>
+		{% endfor %}
+	</div>
+</div>
+</div>
+    
+</div>
+</div>
+  </div>  <!-- container (for bootstrap) -->
+  </body> </html>

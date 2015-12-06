@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en"> <head>
+<title>Meeting Times</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css"
+     href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css"
+/>
+
+<link rel="stylesheet" type="text/css"
+ href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.13/daterangepicker.css"
+/>
+
+<link rel="stylesheet" type="text/css"
+    href="/static/css/busy.css"
+/>
+
+<!-- jquery from a content distribution network; probably cached -->
+<script type="text/javascript"
+     src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+</script>
+
+<!-- Moment -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+
+<!-- Bootstrap DateRangePicker -->
+<link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.13/daterangepicker.min.css"
+/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.13/daterangepicker.min.js"></script>
+
+</head>
+
+<body>
+<div class="container">
+
+<h1>Meeting Times</h1>
+
+<!--
+  -- If there are any warnings or other messages from a prior action,
+  -- they appear above the rest of the content, just until the next 
+  -- action.
+  -->
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="row">
+	<ul>
+	{% for range in session.meeting_times %}
+		<li>
+			{{ range.start | fmtdatetime }} to {{ range.end | fmtdatetime }}
+		</li>
+	{% else %}
+		<li>No times, try a different range</li>
+	{% endfor %}
+	</ul>
+</div>
+
+<div class="row">
+	<a class="btn btn-default" href="/index">Back</a>
+</div>
+    
+
+  </div>  <!-- container (for bootstrap) -->
+  </body> </html>

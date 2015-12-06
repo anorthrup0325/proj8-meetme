@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en"> <head>
+<title>Meeting Times</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />
+
+<!-- jquery from a content distribution network; probably cached -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+
+<!-- Moment -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<!-- Bootstrap DateRangePicker -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+<!-- Custom -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/common.css') }}" />
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/view.css') }}" />
+
+</head>
+
+<body>
+<div class="container">
+<div class="row">
+<div class="col-sm-12">
+
+<h1>Meeting Times</h1>
+
+<!-- 
+  - If there are any warnings or other messages from a prior action,
+  - they appear above the rest of the content, just until the next 
+  - action.
+  -->
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="row">
+<div class="col-sm-12">
+    {# Status: private, invalid, owner, participant #}
+	{% if status == 'owner' or status == 'participant' %}
+		<h3>Meeting Title: <b>{{ meeting.title }}</b></h3>
+		{% if meeting.desc %}
+			<h4 class="desc">{{ meeting.desc }}</h4>
+		{% else %}
+			<h4 class="desc">No description.</h4>
+		{% endif %}
+		<div class="info-line">
+			Meeting Date Range: {{ meeting.start | fmtdate }} - {{ meeting.end | fmtdate }}
+		</div>
+		<div class="info-line">
+			Meeting Time Range: {{ meeting.start_time | fmttime }} - {{ meeting.end_time | fmttime }}
+		</div>
+		{% if meeting.final %}
+			<div class="info-line">
+				<h4 class="inline">Meeting Time: <b>{{ meeting["final"]['start'] | fmtdatetime }} - {{ meeting["final"]['end'] | fmtdatetime }}</b></h4>
+				{% if status == 'owner' %}
+					<button class="btn btn-danger" id="btn-clear">Clear Time</button>
+				{% endif %}
+			</div>
+		{% endif %}
+		{% if status == 'owner' %}
+			<div class="info-line">
+				<h4>Invite Others: <a href="{{ url_for('join', _external=True, meeting=meeting['id'], secret=meeting['secret']) }}">{{ url_for('join', _external=True, meeting=meeting['id'], secret=meeting['secret']) }}</a></h4>
+			</div>
+		{% endif %}
+		{% if meeting.status != 'void' %}
+			<div class="info-line">
+				<div class="alert alert-{{ 'success' if meeting.my_time else 'danger' }} hfill" id="timing">
+					<div class="hfill float-parent" id="timing-bar">
+						{% if meeting.my_time %}
+							<span class="pull-left">Busy events submitted</span>
+						{% else %}
+							<span class="pull-left">Busy events not submitted</span>
+						{% endif %}
+						<button class="btn btn-success pull-right" {{ 'disabled' if meeting.status != 'open' }} id="btn-change">Change</button>
+					</div>
+					{% if meeting.status == 'open' %}
+						<div class="row start-hidden info-line" id="timing-changes">
+							<div class="col-xs-10 col-xs-offset-1" id="timing-boxes">
+								<div class="row">
+									{% for cal in session.calendars if cal.selected %}
+										<div class="col-md-4">
+								  			<label class="checkbox">
+								  				<input type="checkbox" name="calendars" value="{{ cal.id }}" />{{ cal.summary }}
+								  			</label>
+										</div>
+									{% else %}
+										<div class="col-md-4">
+											<p>No calendars available</p>
+										</div>
+									{% endfor %}
+								</div>
+							</div>
+							<div class="col-xs-12">
+								<button class="btn btn-danger" id="btn-time-cancel">Cancel</button>
+								<button class="btn btn-success" id="btn-time-update">Update</button>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+		{% if status == 'owner' and meeting.status != 'void' %}
+			<div class="info-line" id="meeting-times">
+				<h4>Possible Meeting Time(s):</h4>
+				<ul>
+					{% for r in meeting_times %}
+						<li>{{ r['start'] | fmtdatetime }} - {{ r['end'] | fmtdatetime }}</li>
+					{% else %}
+						<li>No times available</li>
+					{% endfor %}
+				</ul>
+				<div class="input-group">
+					<input type="text" name="daterange" class="form-control calender-time" id="final-time-picker"
+						{% if meeting.final %}
+							value="{{ meeting['final']['start'] | fmtdatetime }} - {{ meeting['final']['end'] | fmtdatetime }}"
+						{% endif %}
+						/>
+					<span class="input-group-btn">
+						<button class="btn btn-success" id="btn-final-time">Update</button>
+					</span>
+				</div>
+			</div>
+		{% endif %}
+		{% if status == 'owner' %}
+			<div class="alert alert-danger start-hidden info-line" id="error">
+				<p><b>Error:</b> Could not delete meeting.</p>
+			</div>
+		{% endif %}
+		<div class="info-line float-parent">
+			<a class="btn btn-info pull-left" href="index">Back</a>
+			{% if status == 'owner' %}
+				<div class="pull-right btn-group">
+					{% if meeting.status == 'open' %}
+						<button class="btn btn-warning" id="btn-close">Close Meeting</button>
+					{% else %}
+						<button class="btn btn-success" id="btn-open">Re-Open Meeting</button>
+					{% endif %}
+					{% if meeting.status != 'void' %}
+						<button class="btn btn-danger" id="btn-delete">Delete Meeting</button>
+					{% endif %}
+				</div>
+			{% endif %}
+		</div>
+	{% elif status == 'private' %}
+		<div class="info-line">
+			<h3>Meeting Private</h3>
+			<p>You have not been invited to this meeting. Please contact the host of the meeting if you feel like this is incorrect</p>
+		</div>
+		<div class="info-line">
+			<a class="btn btn-success" href="index">Back</a>
+		</div>
+	{% else %}
+		<div class="info-line">
+			<h3>Meeting not found</h3>
+			<p>Please check that this is the correct meeting id number: <b>{{ meeting }}</b></p>
+		</div>
+		<div class="info-line">
+			<a class="btn btn-success" href="index">Back</a>
+		</div>
+	{% endif %}
+</div>
+</div>
+    
+</div>
+</div>
+  </div>  <!-- container (for bootstrap) -->
+  
+  <script type="text/javascript">
+    // This way, I can use the jinja template for the index url
+	window.anorthrup0325 = {
+		refreshPage: function() {
+			window.location.reload();
+		},
+		gotoIndex: function() {
+			window.location.assign("{{ url_for('index') }}");
+		},
+		url: {
+			set: "{{ url_for('func_set', _external=True) }}",
+			del: "{{ url_for('func_del', _external=True) }}",
+			update: "{{ url_for('func_update', _external=True) }}"
+		},
+		data: {
+			{% if state == 'invalid' or state == 'private' %}
+				index: {{ meeting or 0 }}
+			{% else %}
+				index: {{ meeting.id or 0 }}
+			{% endif %}
+		}
+	}
+  </script>
+  
+  <!-- Custom -->
+  <script src="{{ url_for('static', filename='js/view.js') }}"></script>
+  </body> </html>

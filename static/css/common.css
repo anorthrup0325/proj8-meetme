@@ -1,0 +1,31 @@
+.hfill {
+	width: 100%;
+	margin-left: 0;
+	margin-right: 0;
+	display: block;
+}
+
+.start-hidden {
+    display: none;
+}
+
+/* http://nicolasgallagher.com/micro-clearfix-hack/ */
+.float-parent:before,
+.float-parent:after {
+  content:"";
+  display:table;
+}
+.float-parent:after {
+  clear:both;
+}
+.float-parent {
+  zoom:1; /* For IE 6/7 (trigger hasLayout) */
+}
+
+.alert.btn {
+    margin: 0;
+}
+
+.calendar-table table {
+  table-layout: fixed;
+}

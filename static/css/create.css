@@ -1,0 +1,28 @@
+.info-line {
+	margin-top: 5px;
+}
+
+.desc {
+	font-style: italic;
+}
+
+/* http://www.daterangepicker.com/daterangepicker.css */
+.daterangepicker .calendar-time {
+  text-align: center;
+  margin: 5px auto;
+  line-height: 30px;
+  position: relative;
+  padding-left: 28px;
+}
+.daterangepicker .calendar-time select.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.text-large {
+	font-size: 150%;
+}
+
+textarea {
+	resize: none;
+}

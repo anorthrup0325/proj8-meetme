@@ -1,0 +1,23 @@
+#meeting-info {
+	width: 100%;
+	margin-top: 5px;
+}
+
+#meeting-info .meeting-line {
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 5px;
+	margin: 0;
+	margin-top: 5px;
+	width: 100%;
+	text-decoration: none;
+}
+
+#meeting-info .meeting-own {
+	border-width: 5px;
+	border-color: gray;
+}
+
+.desc-none {
+	font-style: italic;
+}
