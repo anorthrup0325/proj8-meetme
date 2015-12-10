@@ -22,3 +22,14 @@
 .inline {
 	display: inline-block;
 }
+
+.labeled {
+	background: none repeat scroll 0 0 transparent;
+    border: medium none !important;
+    color: #000000;
+    font-weight: normal;
+}
+
+.labeled:focus {
+	font-weight: bold;
+}

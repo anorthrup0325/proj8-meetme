@@ -29,3 +29,17 @@
 .calendar-table table {
   table-layout: fixed;
 }
+
+.noresize {
+	resize: none;
+}
+.vresize {
+	resize: vertical;
+}
+.hresize {
+	resize: horizontal;
+}
+
+.inline-block {
+	display: inline-block;
+}

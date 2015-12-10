@@ -49,11 +49,27 @@
 <div class="col-sm-12">
     {# Status: private, invalid, owner, participant #}
 	{% if status == 'owner' or status == 'participant' %}
-		<h3>Meeting Title: <b>{{ meeting.title }}</b></h3>
-		{% if meeting.desc %}
-			<h4 class="desc">{{ meeting.desc }}</h4>
+		{% if False and status == 'owner' %}
+			<div class="form-inline">
+				<label for="in-title">Meeting Title:</label>
+				<div class="input-group">
+					<input class="form-control custom-control" type="text" id="in-title" value="{{ meeting.title }}" />
+					<span class="input-group-btn">
+						<button class="btn btn-success" id="btn-title">Change</button>
+					</span>
+				</div>
+			</div>
 		{% else %}
-			<h4 class="desc">No description.</h4>
+			<h3>Meeting Title: <b>{{ meeting.title }}</b></h3>
+		{% endif %}
+		{% if False and status == 'owner' %}
+			<textarea class="form-control custom-control vresize" id="in-desc" placeholder="No description.">{{ meeting.desc or '' }}</textarea>
+		{% else %}
+			{% if meeting.desc %}
+				<h4 class="desc">{{ meeting.desc }}</h4>
+			{% else %}
+				<h4 class="desc">No description.</h4>
+			{% endif %}
 		{% endif %}
 		<div class="info-line">
 			Meeting Date Range: {{ meeting.start | fmtdate }} - {{ meeting.end | fmtdate }}
@@ -140,8 +156,8 @@
 		{% endif %}
 		<div class="info-line float-parent">
 			<a class="btn btn-info pull-left" href="index">Back</a>
-			{% if status == 'owner' %}
-				<div class="pull-right btn-group">
+			<div class="pull-right btn-group">
+				{% if status == 'owner' %}
 					{% if meeting.status == 'open' %}
 						<button class="btn btn-warning" id="btn-close">Close Meeting</button>
 					{% else %}
@@ -150,8 +166,10 @@
 					{% if meeting.status != 'void' %}
 						<button class="btn btn-danger" id="btn-delete">Delete Meeting</button>
 					{% endif %}
-				</div>
-			{% endif %}
+				{% else %}
+					<button class="btn btn-danger" id="btn-leave">Leave Meeting</button>
+				{% endif %}
+			</div>
 		</div>
 	{% elif status == 'private' %}
 		<div class="info-line">
@@ -189,7 +207,8 @@
 		url: {
 			set: "{{ url_for('func_set', _external=True) }}",
 			del: "{{ url_for('func_del', _external=True) }}",
-			update: "{{ url_for('func_update', _external=True) }}"
+			update: "{{ url_for('func_update', _external=True) }}",
+			leave: "{{ url_for('func_leave', _external=True) }}"
 		},
 		data: {
 			{% if state == 'invalid' or state == 'private' %}

@@ -131,6 +131,12 @@ def join():
   return flask.render_template('join.html', state='failed')
 
 
+@app.route("/_leave")
+def func_leave():
+  t_meeting = flask.request.args.get('meeting', type=int)
+  t_res = mongo_leave_meeting(flask.session['id'], t_meeting)
+  return flask.jsonify(result=t_res)
+
 @app.route("/_create", methods=["POST"])
 def func_create():
   success,response = require_credentials()
@@ -626,7 +632,6 @@ def mongo_get_joining_info(user_id,meeting_id):
 def mongo_set_data(t_what, t_for, t_who, t_as, t_by, t_obj=False):
   changes = {}
   changes[t_what] = t_as
-  print(changes)
   if t_obj:
     changes[t_what] = json.loads(t_as)
   if t_for == 'meeting':
@@ -636,16 +641,16 @@ def mongo_set_data(t_what, t_for, t_who, t_as, t_by, t_obj=False):
     if meeting["owner"] != t_by:
       return False
     t_res = db.meetings.update_one({ "id": t_who }, {"$set": changes});
-    print(str(t_res.modified_count))
     return t_res.modified_count != False
-  else:
- 		user = db.meetings.find_one({ "id": t_who })
- 		if user == None:
- 			return False
- 		if user["id"] != t_by:
- 			return False
- 		t_res = db.users.update_one({ "id": t_who }, {"$set": changes})
- 		return t_res.modified_count != False
+  elif t_for == 'user':
+    user = db.meetings.find_one({ "id": t_who })
+    if user == None:
+      return False
+    if user["id"] != t_by:
+      return False
+    t_res = db.users.update_one({ "id": t_who }, {"$set": changes})
+    return t_res.modified_count != False
+  return False
 
 def mongo_set_times(meeting_id, user_id, mtl):
 	meeting = db.meetings.find_one({"id": meeting_id})
@@ -708,6 +713,26 @@ def mongo_join_meeting(user_id, meeting_id):
   db.meetings.update_one({"id": meeting_id}, {"$set": {'users': meeting_users}})
   return True
 
+def mongo_leave_meeting(user_id, meeting_id):
+  # Remove from user's list
+  user = db.users.find_one({"id": user_id})
+  if user == None:
+    return False
+  user_meetings = user['meetings']
+  if meeting_id not in user_meetings:
+    return False
+  user_meetings.remove(meeting_id)
+  db.users.update_one({"id": user_id}, {"$set": {'meetings': user_meetings}})
+  
+  # Remove from meeting's list
+  meeting = db.meetings.find_one({"id": meeting_id})
+  if meeting == None:
+    return False
+  meeting_users = meeting['users']
+  meeting_users.remove(user_id)
+  db.meetings.update_one({"id": meeting_id}, {"$set": {'users': meeting_users}})
+  return True
+
 ##############
 
 
@@ -715,10 +740,22 @@ if __name__ == "__main__":
   # App is created above so that it will
   # exist whether this is 'main' or not
   # (e.g., if we are running in a CGI script)
+  
+  import logging
+  from logging import FileHandler
+  from logging import Formatter
+  file_handler = FileHandler('debug.log')
+  file_handler.setLevel(logging.DEBUG)
+  file_handler.setFormatter(Formatter(
+    '%(asctime)s %(levelname)s: %(message)s '
+    '[in %(pathname)s:%(lineno)d]'
+  ))
+  app.logger.addHandler(file_handler)
 
   app.secret_key = str(uuid.uuid4())  
   app.debug=CONFIG.DEBUG
   app.logger.setLevel(logging.DEBUG)
+  app.logger.debug("Program started")
   # We run on localhost only if debugging,
   # otherwise accessible to world
   if CONFIG.DEBUG:

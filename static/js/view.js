@@ -125,6 +125,9 @@ $(function() {
 		}
 	});
 	function updateTimes(ev, picker) {
+		if (picker == null) {
+			return false;
+		}
 		final_start = picker.startDate.format();
 		final_end = picker.endDate.format();
 	}
@@ -150,6 +153,23 @@ $(function() {
 			},
 			error: function(data) {
 				anorthrup0325.refreshPage();
+			}
+		});
+	});
+	
+	$('#btn-leave').on('click', function() {
+		// Leave meeting
+		$.ajax({
+			url: anorthrup0325.url.leave,
+			data: {
+				'meeting': parseInt(anorthrup0325.data.index)
+			},
+			dataType: "json",
+			success: function(data) {
+				anorthrup0325.gotoIndex();
+			},
+			error: function(data) {
+				anorthrup0325.gotoIndex();
 			}
 		});
 	});
